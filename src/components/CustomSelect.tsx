@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./CustomSelect.css"; // Import your CSS file
 import Options from "../interfaces/Options";
 
@@ -7,19 +7,29 @@ interface Props {
 }
 
 const CustomSelect = ({ options }: Props) => {
+  useEffect(() => {
+    const closeDropDown = (event: MouseEvent) => {
+      if ((event.target as HTMLElement).className !== "select-header open")
+        setVisible(false);
+    };
+
+    document.body.addEventListener("click", closeDropDown);
+
+    return () => document.body.removeEventListener("click", closeDropDown);
+  }, []);
   const [selectedOption, setSelectedOption] = useState<Options>();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setVisible] = useState(false);
 
   const handleOptionClick = (option: Options) => {
     setSelectedOption(option);
-    setIsOpen(false);
+    setVisible(false);
   };
 
   return (
     <div className="custom-select">
       <div
-        className={`select-header ${isOpen ? "open" : ""}`}
-        onClick={() => setIsOpen(!isOpen)}
+        className={`select-header ${isVisible ? "open" : ""}`}
+        onClick={() => setVisible(!isVisible)}
       >
         {selectedOption ? (
           <>
@@ -30,7 +40,7 @@ const CustomSelect = ({ options }: Props) => {
           "Select an option"
         )}
       </div>
-      {isOpen && (
+      {isVisible && (
         <div className="options-container">
           {options.map((option) => (
             <div
